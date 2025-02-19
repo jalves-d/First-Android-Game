@@ -1,7 +1,8 @@
 #include <game-activity/GameActivity.cpp>
 #include <game-text-input/gametextinput.cpp>
 
-#include <android/log.h>
+#include "logging.h"
+#include "Renderer.h"
 
 extern "C" {
     #include <game-activity/native_app_glue/android_native_app_glue.c>
@@ -9,12 +10,14 @@ extern "C" {
     void on_app_cmd(android_app *app, int32_t cmd){
         switch (cmd) {
             case APP_CMD_INIT_WINDOW:
-                __android_log_print(ANDROID_LOG_INFO, "LOG",
-                                    "Initializing the window...");
+                LOGI("Initializing the window...");
+                app->userData = new Renderer(app);
                 break;
-            case APP_CMD_TERM_WINDOW:
-                __android_log_print(ANDROID_LOG_INFO, "LOG",
-                                    "Terminating the window...");
+            case APP_CMD_TERM_WINDOW: {
+                LOGI("Terminating the window...");
+                Renderer *renderer = (Renderer *) app->userData;
+                if (renderer) delete renderer;
+            }
                 break;
             default:
                 break;
@@ -26,9 +29,14 @@ extern "C" {
         int events;
 
         do {
-            while (ALooper_pollOnce(0, nullptr, &events, (void**) &poll_source)){
+            if (ALooper_pollOnce(0, nullptr, &events, (void**) &poll_source) >= 0){
                 if (poll_source) poll_source->process(app, poll_source);
             }
+
+            if (!app->userData) continue;
+
+            Renderer *renderer = (Renderer*) app->userData;
+            renderer->do_frame();
         } while(!app->destroyRequested);
     }
 }

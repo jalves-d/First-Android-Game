@@ -8,7 +8,8 @@ project("myfirstgame")
 # Creates your game shared library. The name must be the same as the
 # one used for loading in your Kotlin/Java or AndroidManifest.txt files.
 add_library(myfirstgame SHARED
-        main.cpp)
+        main.cpp
+        Renderer.cpp)
 
 # Searches for a package provided by the game activity dependency
 find_package(game-activity REQUIRED CONFIG)
