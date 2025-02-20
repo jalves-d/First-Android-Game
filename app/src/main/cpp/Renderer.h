@@ -15,4 +15,7 @@ private:
     EGLConfig config;
     EGLSurface surface;
     EGLContext context;
+
+    GLuint vao{}, vbo{};
+    GLuint program{};
 };
